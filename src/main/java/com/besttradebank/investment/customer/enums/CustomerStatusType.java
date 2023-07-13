@@ -1,6 +1,6 @@
 package com.besttradebank.investment.customer.enums;
 
-public enum UserStatusType {
+public enum CustomerStatusType {
     ACTIVATED,
     NOT_ACTIVATED
 }

@@ -1,6 +1,6 @@
 package com.besttradebank.investment.entity;
 
-import com.besttradebank.investment.customer.enums.UserStatusType;
+import com.besttradebank.investment.customer.enums.CustomerStatusType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,7 +29,7 @@ public class Customer {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private UserStatusType status;
+    private CustomerStatusType status;
 
     @CreationTimestamp
     private Instant createdAt;
