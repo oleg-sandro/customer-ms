@@ -2,7 +2,7 @@ package com.besttradebank.investment.customer.mapper;
 
 import com.besttradebank.investment.customer.dto.request.SignUpCustomerRequest;
 import com.besttradebank.investment.customer.dto.response.SignUpCustomerResponse;
-import com.besttradebank.investment.entity.Customer;
+import com.besttradebank.investment.customer.entity.Customer;
 import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

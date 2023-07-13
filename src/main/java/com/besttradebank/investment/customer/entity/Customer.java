@@ -1,4 +1,4 @@
-package com.besttradebank.investment.entity;
+package com.besttradebank.investment.customer.entity;
 
 import com.besttradebank.investment.customer.enums.CustomerStatusType;
 import jakarta.persistence.Entity;
