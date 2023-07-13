@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230714-001
+      author: o.sandro
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: customer
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_customer
+              - column:
+                  name: username
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: un_customer_username
+              - column:
+                  name: email
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: un_customer_email
+              - column:
+                  name: password
+                  type: varchar(63)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(13)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
