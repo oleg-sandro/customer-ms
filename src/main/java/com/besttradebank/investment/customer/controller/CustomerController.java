@@ -2,8 +2,9 @@ package com.besttradebank.investment.customer.controller;
 
 import com.besttradebank.investment.customer.dto.request.SignUpCustomerRequest;
 import com.besttradebank.investment.customer.dto.response.SignUpCustomerResponse;
+import com.besttradebank.investment.customer.service.CustomerService;
 import jakarta.validation.Valid;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping("/api/v1/customer")
+@RequiredArgsConstructor
 public class CustomerController {
 
+    private final CustomerService service;
+
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpCustomerResponse> signup(@Valid @RequestBody SignUpCustomerRequest request) {
-        SignUpCustomerResponse response =
-                new SignUpCustomerResponse(UUID.randomUUID(), request.getUsername(), request.getEmail());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<SignUpCustomerResponse> signUp(@Valid @RequestBody SignUpCustomerRequest request) {
+        return ResponseEntity.ok(service.signUp(request));
     }
 }
