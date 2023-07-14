@@ -12,3 +12,14 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     enabled: ${LIQUIBASE_ENABLED}
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+io:
+  reflectoring:
+    kafka:
+      bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+application:
+  activation:
+    url: ${SERVER_HOST}:${SERVER_PORT}/customer-ms/api/v1/customer/activate/
