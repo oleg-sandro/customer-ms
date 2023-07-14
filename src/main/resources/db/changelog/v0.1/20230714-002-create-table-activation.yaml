@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230714-002
+      author: o.sandro
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: activation
+      changes:
+        - createTable:
+            tableName: activation
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_activation
+              - column:
+                  name: customer_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(9)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expired_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: activation
+            baseColumnNames: customer_id
+            constraintName: fk_customer_activation
+            referencedTableName: customer
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
