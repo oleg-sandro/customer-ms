@@ -1,6 +1,7 @@
 package com.besttradebank.investment.customer.mapper;
 
 import com.besttradebank.investment.customer.dto.request.SignUpCustomerRequest;
+import com.besttradebank.investment.customer.dto.response.ActivateCustomerAccountResponse;
 import com.besttradebank.investment.customer.dto.response.SignUpCustomerResponse;
 import com.besttradebank.investment.customer.entity.Customer;
 import java.util.UUID;
@@ -15,4 +16,6 @@ public interface CustomerMapper {
     Customer fromSignUpCustomerRequest(SignUpCustomerRequest request);
 
     SignUpCustomerResponse toSignUpCustomerResponse(Customer customer);
+
+    ActivateCustomerAccountResponse toActivateCustomerAccountResponse(Customer customer);
 }

@@ -2,6 +2,10 @@ package com.besttradebank.investment.customer.service.impl;
 
 import static com.besttradebank.investment.customer.util.Constants.ACTIVATION_EMAIL_BODY;
 import static com.besttradebank.investment.customer.util.Constants.ACTIVATION_EMAIL_SUBJECT;
+import static com.besttradebank.investment.customer.util.Constants.ACTIVATION_LINK_ALREADY_USED;
+import static com.besttradebank.investment.customer.util.Constants.ACTIVATION_LINK_EXPIRED;
+import static com.besttradebank.investment.customer.util.Constants.ACTIVATION_LINK_IS_INVALID;
+import static com.besttradebank.investment.customer.util.Constants.ACTIVATION_LINK_NOT_FOUND;
 import static com.besttradebank.investment.customer.util.Constants.AUTOMATIC_EMAIL;
 import static com.besttradebank.investment.customer.util.Constants.CUSTOMER_EMAIL_EXISTS;
 import static com.besttradebank.investment.customer.util.Constants.CUSTOMER_USERNAME_EXISTS;
@@ -9,6 +13,7 @@ import static com.besttradebank.investment.customer.util.Constants.DIFFERENT_CUS
 import static java.lang.String.format;
 
 import com.besttradebank.investment.customer.dto.request.SignUpCustomerRequest;
+import com.besttradebank.investment.customer.dto.response.ActivateCustomerAccountResponse;
 import com.besttradebank.investment.customer.dto.response.SignUpCustomerResponse;
 import com.besttradebank.investment.customer.entity.Activation;
 import com.besttradebank.investment.customer.entity.Customer;
@@ -107,5 +112,34 @@ public class CustomerServiceImpl implements CustomerService {
                 .status(ActivationStatusType.VALID)
                 .expiredAt(Instant.now().plus(1, ChronoUnit.DAYS))
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public ActivateCustomerAccountResponse activate(UUID activationId) {
+        Optional<Activation> optional = activationRepository.findById(activationId);
+
+        if (optional.isEmpty()) {
+            throw new CustomerException(ACTIVATION_LINK_NOT_FOUND);
+        }
+
+        Activation activation = optional.get();
+        if (activation.getStatus() == ActivationStatusType.INVALID) {
+            throw new CustomerException(ACTIVATION_LINK_IS_INVALID);
+        }
+
+        if (activation.getStatus() == ActivationStatusType.USED) {
+            throw new CustomerException(ACTIVATION_LINK_ALREADY_USED);
+        }
+
+        if (activation.getExpiredAt().isBefore(Instant.now())) {
+            throw new CustomerException(ACTIVATION_LINK_EXPIRED);
+        }
+
+        Customer customer = activation.getCustomer();
+        customer.setStatus(CustomerStatusType.ACTIVATED);
+        activation.setStatus(ActivationStatusType.USED);
+
+        return mapper.toActivateCustomerAccountResponse(customer);
     }
 }
