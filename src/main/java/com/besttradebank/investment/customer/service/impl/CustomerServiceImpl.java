@@ -54,6 +54,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public SignUpCustomerResponse signUp(SignUpCustomerRequest request) {
+        Activation activation = saveCustomer(request);
+        sendEmailWithActivationLinkCommand(activation);
+        return mapper.toSignUpCustomerResponse(activation.getCustomer());
+    }
+
+    private Activation saveCustomer(SignUpCustomerRequest request) {
         Optional<Customer> customerByUsername = customerRepository.findByUsername(request.getUsername());
         if (customerByUsername.isPresent() && customerByUsername.get().getStatus() == CustomerStatusType.ACTIVATED) {
             throw new CustomerException(format(CUSTOMER_USERNAME_EXISTS, request.getUsername()));
@@ -96,13 +102,7 @@ public class CustomerServiceImpl implements CustomerService {
         activation = buildActivation(customer);
         activationRepository.save(activation);
 
-        String emailBody = format(ACTIVATION_EMAIL_BODY, activationUrl, activation.getId());
-        SendEmailWithActivationLinkPayload payload = new SendEmailWithActivationLinkPayload(
-                customer.getEmail(), AUTOMATIC_EMAIL, ACTIVATION_EMAIL_SUBJECT, emailBody);
-        SendEmailWithActivationLinkCommand command = new SendEmailWithActivationLinkCommand(payload);
-        kafkaTemplate.send(command.getTopic(), command);
-
-        return mapper.toSignUpCustomerResponse(customer);
+        return activation;
     }
 
     private Activation buildActivation(Customer customer) {
@@ -112,6 +112,14 @@ public class CustomerServiceImpl implements CustomerService {
                 .status(ActivationStatusType.VALID)
                 .expiredAt(Instant.now().plus(1, ChronoUnit.DAYS))
                 .build();
+    }
+
+    private void sendEmailWithActivationLinkCommand(Activation activation) {
+        String emailBody = format(ACTIVATION_EMAIL_BODY, activationUrl, activation.getId());
+        SendEmailWithActivationLinkPayload payload = new SendEmailWithActivationLinkPayload(
+                activation.getCustomer().getEmail(), AUTOMATIC_EMAIL, ACTIVATION_EMAIL_SUBJECT, emailBody);
+        SendEmailWithActivationLinkCommand command = new SendEmailWithActivationLinkCommand(payload);
+        kafkaTemplate.send(command.getTopic(), command);
     }
 
     @Override
@@ -124,22 +132,32 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         Activation activation = optional.get();
-        if (activation.getStatus() == ActivationStatusType.INVALID) {
-            throw new CustomerException(ACTIVATION_LINK_IS_INVALID);
-        }
-
-        if (activation.getStatus() == ActivationStatusType.USED) {
-            throw new CustomerException(ACTIVATION_LINK_ALREADY_USED);
-        }
-
-        if (activation.getExpiredAt().isBefore(Instant.now())) {
-            throw new CustomerException(ACTIVATION_LINK_EXPIRED);
-        }
+        checkIfActivationAlreadyInvalid(activation);
+        checkIfActivationAlreadyUsed(activation);
+        checkIfActivationExpired(activation);
 
         Customer customer = activation.getCustomer();
         customer.setStatus(CustomerStatusType.ACTIVATED);
         activation.setStatus(ActivationStatusType.USED);
 
         return mapper.toActivateCustomerAccountResponse(customer);
+    }
+
+    private void checkIfActivationAlreadyInvalid(Activation activation) {
+        if (activation.getStatus() == ActivationStatusType.INVALID) {
+            throw new CustomerException(ACTIVATION_LINK_IS_INVALID);
+        }
+    }
+
+    private void checkIfActivationAlreadyUsed(Activation activation) {
+        if (activation.getStatus() == ActivationStatusType.USED) {
+            throw new CustomerException(ACTIVATION_LINK_ALREADY_USED);
+        }
+    }
+
+    private void checkIfActivationExpired(Activation activation) {
+        if (activation.getExpiredAt().isBefore(Instant.now())) {
+            throw new CustomerException(ACTIVATION_LINK_EXPIRED);
+        }
     }
 }
