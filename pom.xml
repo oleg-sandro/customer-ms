@@ -22,6 +22,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
     <mapstruct.version>1.5.5.Final</mapstruct.version>
+    <junit-jupiter.version>5.9.3</junit-jupiter.version>
   </properties>
 
   <dependencies>
@@ -68,6 +69,10 @@
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct-processor</artifactId>
       <version>${mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
   </dependencies>
 
